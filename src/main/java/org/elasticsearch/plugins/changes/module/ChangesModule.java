@@ -13,11 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package org.elasticsearch.plugins.changes;
+package org.elasticsearch.plugins.changes.module;
 
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
+import org.elasticsearch.plugins.changes.rest.action.ChangesAction;
 
 public class ChangesModule extends AbstractModule {
 	private static final ESLogger log=Loggers.getLogger(ChangesModule.class);
@@ -25,6 +26,7 @@ public class ChangesModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		log.info("Binding ChangesService");
-		bind(ChangesService.class).asEagerSingleton();
+		//bind(ChangesService.class).asEagerSingleton();
+		bind(ChangesAction.class).asEagerSingleton();
 	}
 }

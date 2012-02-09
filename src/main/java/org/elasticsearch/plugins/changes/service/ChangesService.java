@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package org.elasticsearch.plugins.changes;
+package org.elasticsearch.plugins.changes.service;
 
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
@@ -22,19 +22,19 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.indices.IndicesLifecycle;
 import org.elasticsearch.indices.IndicesService;
 
-import org.elasticsearch.plugins.changes.listener.FilterShardListener;
+//import org.elasticsearch.plugins.changes.listener.FilterShardListener;
 
 public class ChangesService {
 	private static final ESLogger log=Loggers.getLogger(ChangesService.class);
 	
 	@Inject
 	public ChangesService(Settings settings, IndicesService indicesService) {
-		log.info("Starting ChangesService");
-		IndicesLifecycle lifecycle=indicesService.indicesLifecycle();
-		for (String name : Config.getFilterNames()) {
-			log.info("Registering listener for filter {}", name);
-			FilterShardListener listener=new FilterShardListener(name, Config.getFilterIndices(name));
-			lifecycle.addListener(listener);
-		}
+//		log.info("Starting ChangesService");
+//		IndicesLifecycle lifecycle=indicesService.indicesLifecycle();
+//		for (String name : Config.getFilterNames()) {
+//			log.info("Registering listener for filter {}", name);
+//			FilterShardListener listener=new FilterShardListener(name, Config.getFilterIndices(name));
+//			lifecycle.addListener(listener);
+//		}
 	}
 }

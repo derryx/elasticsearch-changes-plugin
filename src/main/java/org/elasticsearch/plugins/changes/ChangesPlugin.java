@@ -23,16 +23,16 @@ import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.plugins.AbstractPlugin;
+import org.elasticsearch.plugins.changes.module.ChangesModule;
 
 public class ChangesPlugin extends AbstractPlugin {
-	private final ESLogger log;
+	private final ESLogger log=Loggers.getLogger(ChangesPlugin.class);
 	private final Collection<Class<? extends Module>> modules;
 	
 	public ChangesPlugin() {
-		log=Loggers.getLogger(getClass());
 		log.info("Starting ChangesPlugin");
 		
-		Collection<Class<? extends Module>> tempList=new ArrayList<Class<? extends Module>>();
+		Collection<Class<? extends Module>> tempList=new ArrayList<Class<? extends Module>>(1);
 		tempList.add(ChangesModule.class);
 		modules=Collections.unmodifiableCollection(tempList);
 	}
