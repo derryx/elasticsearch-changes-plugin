@@ -15,6 +15,63 @@
  */
 package org.elasticsearch.plugins.changes.beans;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 public class IndexChanges {
 	long lastChange;
+	Change[] changes;
+	int capacity;
+	int count;
+	boolean wrapped;
+	
+	public IndexChanges(int capacity) {
+		this.lastChange=System.currentTimeMillis();
+		this.changes=new Change[capacity];
+		this.capacity=capacity;
+		this.count=0;
+		this.wrapped=false;
+	}
+	
+	public void addChange(Change c) {
+		synchronized (changes) {
+			lastChange=c.timestamp;
+			changes[count]=c;
+			count++;
+			if (count>=capacity) {
+				count=0;
+				wrapped=true;
+			}
+		}
+	}
+	
+	public long getLastChangeMillis() {
+		return lastChange;
+	}
+	
+	public Date getLastChange() {
+		return new Date(lastChange);
+	}
+	
+	public Change[] getChanges() {
+		Change[] copy=new Change[capacity];
+		System.arraycopy(changes, 0, copy, 0, capacity);
+		
+		int nullIndex=capacity;
+		
+		if (!wrapped) {
+			for (int i=copy.length-1;i>=0;--i) {
+				if (copy[i]!=null) {
+					nullIndex=i+1;
+					break;
+				}
+			}
+		}
+
+		Arrays.sort(copy,0,nullIndex-1);
+		
+		return copy;
+	}
 }
