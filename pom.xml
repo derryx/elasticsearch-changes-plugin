@@ -10,18 +10,18 @@
 	<description>ElasticSearch - Changes Plugin</description>
 	<inceptionYear>2012</inceptionYear>
 	<url>http://github.com/derryx/elasticsearch-changes-plugin</url>
-	
+
 	<developers>
-	   <developer>
-	      <id>derryx</id>
-	      <name>Thomas Peuss</name>
-	      <roles>
-	         <role>committer</role>
-	         <role>developer</role>
-	      </roles>
-	   </developer>
+		<developer>
+			<id>derryx</id>
+			<name>Thomas Peuss</name>
+			<roles>
+				<role>committer</role>
+				<role>developer</role>
+			</roles>
+		</developer>
 	</developers>
-	
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -29,20 +29,25 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<connection>scm:git:git@github.com/derryx/elasticsearch-changes-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com/derryx/elasticsearch-changes-plugin.gitt</developerConnection>
 		<url>http://github.com/derryx/elasticsearch-changes-plugin</url>
 	</scm>
+	
+	<issueManagement>
+	   <url>http://github.com/derryx/elasticsearch-changes-plugin/issues</url>
+	   <system>GitHub Issues</system>
+	</issueManagement>
 
-    <dependencies>
-         <dependency>
-             <groupId>org.elasticsearch</groupId>
-             <artifactId>elasticsearch</artifactId>
-             <version>${project.version}</version>
-         </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -56,21 +61,31 @@
 				</configuration>
 			</plugin>
 			<plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-                <version>0.3</version>
-                <configuration>
-                    <message>Creating site for ${project.version}</message>
-                </configuration>
-                <executions>
-                   <execution>
-                        <goals>
-                           <goal>site</goal>
-                        </goals>
-                        <phase>site</phase>
-                   </execution>
-                </executions>
-             </plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.4</version>
+				<configuration>
+					<message>Creating site for ${project.version}</message>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>site</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>downloads-maven-plugin</artifactId>
+				<version>0.4</version>
+				<configuration>
+					<description>${project.version} release of ${project.name}</description>
+					<override>true</override>
+					<includeAttached>true</includeAttached>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
