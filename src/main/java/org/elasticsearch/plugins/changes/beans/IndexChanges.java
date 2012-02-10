@@ -15,36 +15,23 @@
  */
 package org.elasticsearch.plugins.changes.beans;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
+
+import org.elasticsearch.plugins.changes.util.ConcurrentCircularBuffer;
 
 public class IndexChanges {
 	long lastChange;
-	Change[] changes;
-	int capacity;
-	int count;
-	boolean wrapped;
+    ConcurrentCircularBuffer<Change> changes;
 	
 	public IndexChanges(int capacity) {
 		this.lastChange=System.currentTimeMillis();
-		this.changes=new Change[capacity];
-		this.capacity=capacity;
-		this.count=0;
-		this.wrapped=false;
+		this.changes=new ConcurrentCircularBuffer<Change>(Change.class, capacity);
 	}
 	
 	public void addChange(Change c) {
-		synchronized (changes) {
-			lastChange=c.timestamp;
-			changes[count]=c;
-			count++;
-			if (count>=capacity) {
-				count=0;
-				wrapped=true;
-			}
-		}
+		lastChange=c.timestamp;
+		changes.add(c);
 	}
 	
 	public long getLastChangeMillis() {
@@ -56,22 +43,10 @@ public class IndexChanges {
 	}
 	
 	public Change[] getChanges() {
-		Change[] copy=new Change[capacity];
-		System.arraycopy(changes, 0, copy, 0, capacity);
+		Change[] snapshot=changes.completeSnapshot();
 		
-		int nullIndex=capacity;
+		Arrays.sort(snapshot);
 		
-		if (!wrapped) {
-			for (int i=copy.length-1;i>=0;--i) {
-				if (copy[i]!=null) {
-					nullIndex=i+1;
-					break;
-				}
-			}
-		}
-
-		Arrays.sort(copy,0,nullIndex-1);
-		
-		return copy;
+		return snapshot;
 	}
 }
