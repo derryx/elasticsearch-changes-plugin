@@ -1,0 +1,6 @@
+org.elasticsearch.plugins.changes
+org.elasticsearch.plugins.changes.beans
+org.elasticsearch.plugins.changes.module
+org.elasticsearch.plugins.changes.rest.action
+org.elasticsearch.plugins.changes.service
+org.elasticsearch.plugins.changes.util
