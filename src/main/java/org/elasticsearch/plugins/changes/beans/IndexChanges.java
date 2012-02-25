@@ -15,8 +15,9 @@
  */
 package org.elasticsearch.plugins.changes.beans;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.elasticsearch.plugins.changes.util.ConcurrentCircularBuffer;
 
@@ -42,10 +43,10 @@ public class IndexChanges {
 		return new Date(lastChange);
 	}
 	
-	public Change[] getChanges() {
-		Change[] snapshot=changes.completeSnapshot();
+	public List<Change> getChanges() {
+		List<Change> snapshot=changes.snapshot();
 		
-		Arrays.sort(snapshot);
+		Collections.sort(snapshot);
 		
 		return snapshot;
 	}

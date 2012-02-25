@@ -15,6 +15,9 @@
  */
 package org.elasticsearch.plugins.changes.util;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.lang.reflect.Array;
 
@@ -33,72 +36,46 @@ public class ConcurrentCircularBuffer <T> {
         }
 
         this.type    = type;
-        this.buffer = (T[]) new Object [ bufferSize ];
+        this.buffer = (T[]) Array.newInstance(type,  bufferSize);
     }
 
-    public void add (T sample) {
+    public void add (final T sample) {
         buffer[(int) (cursor.getAndIncrement() % buffer.length)] = sample;
     }
 
-    public T[] snapshot () {
-        T[] snapshots = (T[]) new Object [ buffer.length ];
+    public List<T> snapshot () {
+        T[] snapshot = (T[]) Array.newInstance(type, buffer.length);
 
-        long before = cursor.get();
-
-        if (before == 0) {
-            return (T[]) Array.newInstance(type, 0);
+        System.arraycopy(buffer, 0, snapshot, 0, buffer.length);
+        
+        // find last non-null entry
+        int lastEntryIndex=-1;
+        for (int i=snapshot.length-1;i>=0;--i) {
+        	if (snapshot[i]!=null) {
+        		lastEntryIndex=i;
+        		break;
+        	}
         }
-
-        System.arraycopy(buffer, 0, snapshots, 0, buffer.length);
-
-        long after          = cursor.get();
-        int  size           = buffer.length - (int) (after - before);
-        long snapshotCursor = before - 1;
-
-        if (size <= 0) {
-            return (T[]) Array.newInstance(type, 0);
+        // buffer still empty?
+        if (lastEntryIndex==-1) {
+        	return Collections.emptyList();
         }
-
-        long start = snapshotCursor - (size - 1);
-        long end   = snapshotCursor;
-
-        if (snapshotCursor < snapshots.length) {
-            size   = (int) snapshotCursor + 1;
-            start  = 0;
+        // buffer already full?
+        if (lastEntryIndex==snapshot.length-1) {
+        	return Arrays.asList(snapshot);
         }
+        
+        T[] shortSnapshot=(T[])Array.newInstance(type, lastEntryIndex+1);
+        System.arraycopy(snapshot, 0, shortSnapshot, 0, shortSnapshot.length);
 
-        T[] result = (T[]) Array.newInstance(type, size);
-
-        int startOfCopy = (int) (start % snapshots.length);
-        int endOfCopy   = (int) (end   % snapshots.length);
-
-        if (startOfCopy > endOfCopy) {
-            System.arraycopy(snapshots, startOfCopy,
-                             result, 0, 
-                             snapshots.length - startOfCopy);
-            System.arraycopy(snapshots, 0,
-                             result, (snapshots.length - startOfCopy),
-                             endOfCopy + 1);
-        }
-        else {
-            System.arraycopy(snapshots, startOfCopy,
-                             result, 0, endOfCopy - startOfCopy + 1);
-        }
-
-        return (T[]) result;
-    }
-
-    public T[] completeSnapshot () {
-        T[] snapshot = snapshot();
-
-        while (snapshot.length != buffer.length) {
-            snapshot = snapshot();
-        }
-
-        return snapshot;
+        return Arrays.asList(shortSnapshot);
     }
 
     public int size () {
         return buffer.length;
+    }
+    
+    public long getModificationCount() {
+    	return cursor.get();
     }
 }
