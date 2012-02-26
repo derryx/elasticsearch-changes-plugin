@@ -48,8 +48,8 @@ public class IndexChanges extends IndexingOperationListener {
 		return lastChange;
 	}
 	
-	public Date getLastChange() {
-		return new Date(lastChange);
+	public long getLastChange() {
+		return lastChange;
 	}
 	
 	public List<Change> getChanges() {
@@ -74,7 +74,7 @@ public class IndexChanges extends IndexingOperationListener {
 		change.id=create.id();
 		change.type=Type.CREATE;
 		change.version=create.version();
-		change.timestamp=create.startTime();
+		change.timestamp=System.currentTimeMillis();
 		
 		changes.add(change);
 		lastChange=change.timestamp;
@@ -86,7 +86,7 @@ public class IndexChanges extends IndexingOperationListener {
 		change.id=delete.id();
 		change.type=Type.DELETE;
 		change.version=delete.version();
-		change.timestamp=delete.startTime();
+		change.timestamp=System.currentTimeMillis();
 		
 		changes.add(change);
 		lastChange=change.timestamp;
@@ -104,7 +104,7 @@ public class IndexChanges extends IndexingOperationListener {
 		change.id=index.id();
 		change.type=Type.INDEX;
 		change.version=index.version();
-		change.timestamp=index.startTime();
+		change.timestamp=System.currentTimeMillis();
 		
 		changes.add(change);
 		lastChange=change.timestamp;		

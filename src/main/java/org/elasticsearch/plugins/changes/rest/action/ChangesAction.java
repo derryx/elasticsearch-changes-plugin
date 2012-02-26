@@ -106,36 +106,36 @@ public class ChangesAction extends BaseRestHandler {
 		List<String> indices = Arrays.asList(splitIndices(request.param("index")));
 		if (indices.size()==0) {
 			indices=new ArrayList<String>(changes.keySet());
-		}
+		}		
+
+		long since=request.paramAsLong("since", Long.MIN_VALUE);
+
 		try {
 			XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
 			builder.startObject();
 			for (String indexName : indices) {
 				IndexChanges indexChanges=changes.get(indexName);
 				if (indexChanges!=null) {
-					if (indices.size()>1) {
-					    builder.startObject(indexName);
-					}
+					builder.startObject(indexName);
 					builder.field("lastChange",indexChanges.getLastChange());
 					List<Change> changesList=indexChanges.getChanges();
 					builder.startArray("changes");
 					
 					for (Change change : changesList) {
-						builder.startObject();
+						if (change.getTimestamp()>since) {
+							builder.startObject();
 						
-						builder.field("type",change.getType().toString());
-						builder.field("id",change.getId());
-						builder.field("timestamp",new Date(change.getTimestamp()));
-						builder.field("version",change.getVersion());
+							builder.field("type",change.getType().toString());
+							builder.field("id",change.getId());
+							builder.field("timestamp",change.getTimestamp());
+							builder.field("version",change.getVersion());
 						
-						builder.endObject();
+							builder.endObject();
+						}
 					}
 					
 					builder.endArray();
-					
-					if (indices.size()>1) {
-						builder.endObject();
-					}
+					builder.endObject();
 				}
 			}
 			builder.endObject();
