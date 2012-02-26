@@ -43,6 +43,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<github.global.userName></github.global.userName>
+		<github.global.password></github.global.password>
 	</properties>
 
 	<licenses>
