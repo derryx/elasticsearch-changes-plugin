@@ -16,30 +16,139 @@
 package org.elasticsearch.plugins.changes.rest.action;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
+import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.action.support.RestActions.splitIndices;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.shard.ShardId;
+import org.elasticsearch.index.shard.service.IndexShard;
+import org.elasticsearch.indices.IndicesLifecycle.Listener;
 import org.elasticsearch.indices.IndicesService;
+import org.elasticsearch.plugins.changes.beans.Change;
+import org.elasticsearch.plugins.changes.beans.IndexChanges;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.XContentRestResponse;
+import org.elasticsearch.rest.XContentThrowableRestResponse;
+import org.elasticsearch.rest.action.support.RestXContentBuilder;
 
 public class ChangesAction extends BaseRestHandler {
 	IndicesService indicesService;
-	
+	Map<String, IndexChanges> changes;
+
 	@Inject
-	public ChangesAction(Settings settings, Client client, RestController controller, IndicesService indicesService) {
+	public ChangesAction(Settings settings, Client client,
+			RestController controller, IndicesService indicesService) {
 		super(settings, client);
-		this.indicesService=indicesService;
-	    controller.registerHandler(GET, "/_changes", this);
-	    controller.registerHandler(GET, "/{index}/_changes", this);
+		this.indicesService = indicesService;
+		this.changes = new ConcurrentHashMap<String, IndexChanges>();
+		controller.registerHandler(GET, "/_changes", this);
+		controller.registerHandler(GET, "/{index}/_changes", this);
+
+		registerLifecycleHandler();
+	}
+
+	private void registerLifecycleHandler() {
+		indicesService.indicesLifecycle().addListener(new Listener() {
+			@Override
+			public void afterIndexShardStarted(IndexShard indexShard) {
+				if (indexShard.routingEntry().primary()) {
+					IndexChanges indexChanges = null;
+					synchronized (changes) {
+						indexChanges = changes.get(indexShard.shardId().index()
+								.name());
+						if (indexChanges == null) {
+							indexChanges = new IndexChanges(settings.getAsInt(
+									"changes.history.count", 100));
+							changes.put(indexShard.shardId().index().name(),
+									indexChanges);
+						}
+					}
+					indexChanges.addShard();
+					indexShard.indexingService().addListener(indexChanges);
+				}
+			}
+
+			@Override
+			public void beforeIndexShardClosed(ShardId shardId,
+					IndexShard indexShard, boolean delete) {
+				if (indexShard.routingEntry().primary()) {
+					IndexChanges indexChanges = changes.get(shardId.index()
+							.name());
+					indexShard.indexingService().removeListener(indexChanges);
+					synchronized (changes) {
+						if (indexChanges.removeShard() == 0) {
+							changes.remove(shardId.index().name());
+						}
+					}
+				}
+			}
+		});
 	}
 
 	@Override
-	public void handleRequest(RestRequest request, RestChannel channel) {
+	public void handleRequest(final RestRequest request,
+			final RestChannel channel) {
 		logger.debug("Request");
-
+		List<String> indices = Arrays.asList(splitIndices(request.param("index")));
+		if (indices.size()==0) {
+			indices=new ArrayList<String>(changes.keySet());
+		}
+		try {
+			XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
+			builder.startObject();
+			for (String indexName : indices) {
+				IndexChanges indexChanges=changes.get(indexName);
+				if (indexChanges!=null) {
+					if (indices.size()>1) {
+					    builder.startObject(indexName);
+					}
+					builder.field("lastChange",indexChanges.getLastChange());
+					List<Change> changesList=indexChanges.getChanges();
+					builder.startArray("changes");
+					
+					for (Change change : changesList) {
+						builder.startObject();
+						
+						builder.field("type",change.getType().toString());
+						builder.field("id",change.getId());
+						builder.field("timestamp",new Date(change.getTimestamp()));
+						builder.field("version",change.getVersion());
+						
+						builder.endObject();
+					}
+					
+					builder.endArray();
+					
+					if (indices.size()>1) {
+						builder.endObject();
+					}
+				}
+			}
+			builder.endObject();
+			channel.sendResponse(new XContentRestResponse(request, OK, builder));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			try {
+				channel.sendResponse(new XContentThrowableRestResponse(request, e));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 }

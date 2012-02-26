@@ -18,16 +18,25 @@ package org.elasticsearch.plugins.changes.beans;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.elasticsearch.index.engine.Engine.Create;
+import org.elasticsearch.index.engine.Engine.Delete;
+import org.elasticsearch.index.engine.Engine.DeleteByQuery;
+import org.elasticsearch.index.engine.Engine.Index;
+import org.elasticsearch.index.indexing.IndexingOperationListener;
+import org.elasticsearch.plugins.changes.beans.Change.Type;
 import org.elasticsearch.plugins.changes.util.ConcurrentCircularBuffer;
 
-public class IndexChanges {
+public class IndexChanges extends IndexingOperationListener {
 	long lastChange;
     ConcurrentCircularBuffer<Change> changes;
+    AtomicInteger shardCount;
 	
 	public IndexChanges(int capacity) {
 		this.lastChange=System.currentTimeMillis();
 		this.changes=new ConcurrentCircularBuffer<Change>(Change.class, capacity);
+		this.shardCount=new AtomicInteger();
 	}
 	
 	public void addChange(Change c) {
@@ -49,5 +58,55 @@ public class IndexChanges {
 		Collections.sort(snapshot);
 		
 		return snapshot;
+	}
+	
+	public int addShard() {
+		return shardCount.incrementAndGet();
+	}
+	
+	public int removeShard() {
+		return shardCount.decrementAndGet();
+	}
+
+	@Override
+	public void postCreate(Create create) {
+		Change change=new Change();
+		change.id=create.id();
+		change.type=Type.CREATE;
+		change.version=create.version();
+		change.timestamp=create.startTime();
+		
+		changes.add(change);
+		lastChange=change.timestamp;
+	}
+
+	@Override
+	public void postDelete(Delete delete) {
+		Change change=new Change();
+		change.id=delete.id();
+		change.type=Type.DELETE;
+		change.version=delete.version();
+		change.timestamp=delete.startTime();
+		
+		changes.add(change);
+		lastChange=change.timestamp;
+	}
+
+	@Override
+	public void postDeleteByQuery(DeleteByQuery deleteByQuery) {
+		// TODO Auto-generated method stub
+		super.postDeleteByQuery(deleteByQuery);
+	}
+
+	@Override
+	public void postIndex(Index index) {
+		Change change=new Change();
+		change.id=index.id();
+		change.type=Type.INDEX;
+		change.version=index.version();
+		change.timestamp=index.startTime();
+		
+		changes.add(change);
+		lastChange=change.timestamp;		
 	}
 }

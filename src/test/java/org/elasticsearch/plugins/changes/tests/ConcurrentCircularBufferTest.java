@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ConcurrentCircularBufferTest {
-	private static final int THREAD_COUNT=2;
+	private static final int THREAD_COUNT=4;
 	ExecutorService threadpool;
 	
 	@Before

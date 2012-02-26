@@ -26,7 +26,6 @@ public class ChangesModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		log.info("Binding ChangesService");
-		//bind(ChangesService.class).asEagerSingleton();
 		bind(ChangesAction.class).asEagerSingleton();
 	}
 }
