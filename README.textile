@@ -1,3 +1,25 @@
 h1. Elasticsearch Changes Plugin 
 
+The Elasticsearch Changes plugin is a plugin for "Elasticsearch":http://www.elasticsearch.org/ that tracks changes to indices and makes this information available
+through a REST service.
+
+h2. Installation
+
+Run @bin/plugin -install derryx/elasticsearch-changes-plugin@
+
+h2. Configuration
+
+You can set the length of the history buffer with the setting @changes.history.size@. The default is 100.
+
+h2. Usage
+
+Point your browser to "http://localhost:9200/_changes/":http://localhost:9200/_changes/ to see changes for all indices. If you want to see changes only for one or a list of indices you can use "http://localhost:9200/foo,bar,baz/_changes/":http://localhost:9200/foo,bar,baz/_changes/.
+
+h3. See changes after a given timestamp
+
+If you want to see only changes after a given timestamp you can use "http://localhost:9200/_changes/?since=1330282941692":http://localhost:9200/_changes/?since=1330282941692.
+
+
+h4. Other information
+
 See "project's GitHub pages":http://derryx.github.com/elasticsearch-changes-plugin/ for details.
