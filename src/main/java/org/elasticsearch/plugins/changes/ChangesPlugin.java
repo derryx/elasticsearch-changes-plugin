@@ -26,7 +26,7 @@ import org.elasticsearch.plugins.AbstractPlugin;
 import org.elasticsearch.plugins.changes.module.ChangesModule;
 
 public class ChangesPlugin extends AbstractPlugin {
-	private final ESLogger log=Loggers.getLogger(ChangesPlugin.class);
+	private static final ESLogger log=Loggers.getLogger(ChangesPlugin.class);
 	private final Collection<Class<? extends Module>> modules;
 	
 	public ChangesPlugin() {

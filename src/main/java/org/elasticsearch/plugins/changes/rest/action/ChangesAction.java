@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.inject.Inject;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.shard.ShardId;
@@ -46,6 +48,8 @@ import org.elasticsearch.rest.XContentThrowableRestResponse;
 import org.elasticsearch.rest.action.support.RestXContentBuilder;
 
 public class ChangesAction extends BaseRestHandler {
+	private static final ESLogger log=Loggers.getLogger(ChangesAction.class);
+	private static final String SETTING_HISTORY_SIZE="changes.history.size";
 	IndicesService indicesService;
 	Map<String, IndexChanges> changes;
 
@@ -66,13 +70,14 @@ public class ChangesAction extends BaseRestHandler {
 			@Override
 			public void afterIndexShardStarted(IndexShard indexShard) {
 				if (indexShard.routingEntry().primary()) {
+					log.debug("Registering change handler for index {} and shard {}", indexShard.shardId().index().name(),indexShard.shardId().id());
 					IndexChanges indexChanges = null;
 					synchronized (changes) {
 						indexChanges = changes.get(indexShard.shardId().index()
 								.name());
 						if (indexChanges == null) {
 							indexChanges = new IndexChanges(settings.getAsInt(
-									"changes.history.count", 100));
+									SETTING_HISTORY_SIZE, 100));
 							changes.put(indexShard.shardId().index().name(),
 									indexChanges);
 						}
@@ -86,11 +91,13 @@ public class ChangesAction extends BaseRestHandler {
 			public void beforeIndexShardClosed(ShardId shardId,
 					IndexShard indexShard, boolean delete) {
 				if (indexShard.routingEntry().primary()) {
+					log.debug("Removing change handler for index {} and shard {}",indexShard.shardId().index().name(),indexShard.shardId().id());
 					IndexChanges indexChanges = changes.get(shardId.index()
 							.name());
 					indexShard.indexingService().removeListener(indexChanges);
 					synchronized (changes) {
 						if (indexChanges.removeShard() == 0) {
+							log.debug("No more active shards for index {}", shardId.index().name());
 							changes.remove(shardId.index().name());
 						}
 					}
