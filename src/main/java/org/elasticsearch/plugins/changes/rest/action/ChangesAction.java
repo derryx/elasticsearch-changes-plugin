@@ -70,7 +70,7 @@ public class ChangesAction extends BaseRestHandler {
 			@Override
 			public void afterIndexShardStarted(IndexShard indexShard) {
 				if (indexShard.routingEntry().primary()) {
-					log.debug("Registering change handler for index {} and shard {}", indexShard.shardId().index().name(),indexShard.shardId().id());
+					log.debug("Registering change handler for [{}][{}]", indexShard.shardId().index().name(),indexShard.shardId().id());
 					IndexChanges indexChanges = null;
 					synchronized (changes) {
 						indexChanges = changes.get(indexShard.shardId().index()
@@ -91,13 +91,13 @@ public class ChangesAction extends BaseRestHandler {
 			public void beforeIndexShardClosed(ShardId shardId,
 					IndexShard indexShard, boolean delete) {
 				if (indexShard.routingEntry().primary()) {
-					log.debug("Removing change handler for index {} and shard {}",indexShard.shardId().index().name(),indexShard.shardId().id());
+					log.debug("Removing change handler for [{}][{}]",indexShard.shardId().index().name(),indexShard.shardId().id());
 					IndexChanges indexChanges = changes.get(shardId.index()
 							.name());
 					indexShard.indexingService().removeListener(indexChanges);
 					synchronized (changes) {
 						if (indexChanges.removeShard() == 0) {
-							log.debug("No more active shards for index {}", shardId.index().name());
+							log.debug("No more active shards for [{}]", shardId.index().name());
 							changes.remove(shardId.index().name());
 						}
 					}
@@ -148,13 +148,11 @@ public class ChangesAction extends BaseRestHandler {
 			builder.endObject();
 			channel.sendResponse(new XContentRestResponse(request, OK, builder));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error while handling change REST action",e);
 			try {
 				channel.sendResponse(new XContentThrowableRestResponse(request, e));
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				log.error("Error while sending error response",e1);
 			}
 		}
 	}
