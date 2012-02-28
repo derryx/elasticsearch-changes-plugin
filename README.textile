@@ -52,7 +52,10 @@ h3. See changes after a given timestamp
 
 If you want to see only changes after a given timestamp you can use "http://localhost:9200/_changes/?since=1330282941692":http://localhost:9200/_changes/?since=1330282941692. The timestamp again is a UNIX timestamp (in milliseconds).
 
+h3. Version mapping
 
-h4. Other information
+* Change Plugin 0.1 -> Elasticsearch 0.18.7
+
+h2. Other information
 
 See "project's GitHub pages":http://derryx.github.com/elasticsearch-changes-plugin/ for details.
