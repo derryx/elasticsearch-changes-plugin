@@ -15,10 +15,10 @@
 -docencoding
 'UTF-8'
 -doctitle
-'elasticsearch-changes-plugin 0.18.7 API'
+'elasticsearch-changes-plugin 0.1 API'
 -link
 'http://java.sun.com/javase/6/docs/api'
 -use
 -version
 -windowtitle
-'elasticsearch-changes-plugin 0.18.7 API'
+'elasticsearch-changes-plugin 0.1 API'
