@@ -38,6 +38,7 @@ import org.elasticsearch.index.shard.service.IndexShard;
 import org.elasticsearch.indices.IndicesLifecycle.Listener;
 import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.plugins.changes.beans.Change;
+import org.elasticsearch.plugins.changes.beans.IndexChangeWatcher;
 import org.elasticsearch.plugins.changes.beans.IndexChanges;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.RestChannel;
@@ -76,7 +77,8 @@ public class ChangesAction extends BaseRestHandler {
 						indexChanges = changes.get(indexShard.shardId().index()
 								.name());
 						if (indexChanges == null) {
-							indexChanges = new IndexChanges(settings.getAsInt(
+							indexChanges = new IndexChanges(indexShard.shardId().index()
+									.name(),settings.getAsInt(
 									SETTING_HISTORY_SIZE, 100));
 							changes.put(indexShard.shardId().index().name(),
 									indexChanges);
@@ -99,6 +101,9 @@ public class ChangesAction extends BaseRestHandler {
 						if (indexChanges.removeShard() == 0) {
 							log.debug("No more active shards for [{}]", shardId.index().name());
 							changes.remove(shardId.index().name());
+							
+							// Trigger stale watchers for this index
+							indexChanges.triggerWatchers();
 						}
 					}
 				}
@@ -116,8 +121,19 @@ public class ChangesAction extends BaseRestHandler {
 		}		
 
 		long since=request.paramAsLong("since", Long.MIN_VALUE);
+		boolean wait=request.paramAsBoolean("wait",Boolean.FALSE);
 
 		try {
+			// Wait for trigger
+			if (wait) {
+				IndexChangeWatcher watcher=addWatcher(indices);
+				watcher.aquire();
+				removeWatcher(indices);
+				if (watcher.getChange().getType()==null) {
+					throw new Exception("No more shards available to trigger waiting watch");
+				}
+			}
+			
 			XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
 			builder.startObject();
 			for (String indexName : indices) {
@@ -147,7 +163,7 @@ public class ChangesAction extends BaseRestHandler {
 			}
 			builder.endObject();
 			channel.sendResponse(new XContentRestResponse(request, OK, builder));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("Error while handling change REST action",e);
 			try {
 				channel.sendResponse(new XContentThrowableRestResponse(request, e));
@@ -155,5 +171,29 @@ public class ChangesAction extends BaseRestHandler {
 				log.error("Error while sending error response",e1);
 			}
 		}
+	}
+	
+	IndexChangeWatcher addWatcher(List<String> indices) {
+		IndexChangeWatcher watcher=new IndexChangeWatcher();
+		
+		for (String index : indices) {
+			IndexChanges change=changes.get(index);
+			if (change!=null) {
+				change.addWatcher(watcher);
+			}
+		}
+		
+		return watcher;
+	}
+	
+	void removeWatcher(List<String> indices) {
+		IndexChangeWatcher watcher=new IndexChangeWatcher();
+		
+		for (String index : indices) {
+			IndexChanges change=changes.get(index);
+			if (change!=null) {
+				change.removeWatcher(watcher);
+			}
+		}		
 	}
 }

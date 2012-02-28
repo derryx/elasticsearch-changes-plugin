@@ -15,9 +15,8 @@
  */
 package org.elasticsearch.plugins.changes.beans;
 
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.elasticsearch.index.engine.Engine.Create;
@@ -29,21 +28,40 @@ import org.elasticsearch.plugins.changes.beans.Change.Type;
 import org.elasticsearch.plugins.changes.util.ConcurrentCircularBuffer;
 
 public class IndexChanges extends IndexingOperationListener {
+	String indexName;
 	long lastChange;
     ConcurrentCircularBuffer<Change> changes;
     AtomicInteger shardCount;
+    List<IndexChangeWatcher> watchers;
 	
-	public IndexChanges(int capacity) {
+	public IndexChanges(String indexName, int capacity) {
+		this.indexName=indexName;
 		this.lastChange=System.currentTimeMillis();
 		this.changes=new ConcurrentCircularBuffer<Change>(Change.class, capacity);
 		this.shardCount=new AtomicInteger();
+		this.watchers=new CopyOnWriteArrayList<IndexChangeWatcher>();
+	}
+
+	public void removeWatcher(IndexChangeWatcher watcher) {
+		watchers.remove(watcher);
 	}
 	
-	public void addChange(Change c) {
-		lastChange=c.timestamp;
-		changes.add(c);
+	public void addWatcher(IndexChangeWatcher watcher) {
+		watchers.add(watcher);
 	}
 	
+	public void triggerWatchers() {
+		triggerWatchers(new Change());
+	}
+	
+	private void triggerWatchers(Change c) {
+		for (IndexChangeWatcher watch : watchers) {
+			watch.setIndexName(indexName);
+			watch.setChange(c);
+			watch.permit();
+		}
+	}
+
 	public long getLastChangeMillis() {
 		return lastChange;
 	}
@@ -55,8 +73,6 @@ public class IndexChanges extends IndexingOperationListener {
 	public List<Change> getChanges() {
 		List<Change> snapshot=changes.snapshot();
 		
-		Collections.sort(snapshot);
-		
 		return snapshot;
 	}
 	
@@ -67,7 +83,13 @@ public class IndexChanges extends IndexingOperationListener {
 	public int removeShard() {
 		return shardCount.decrementAndGet();
 	}
-
+	
+	protected void addChange(Change c) {
+		lastChange=c.timestamp;
+		changes.add(c);
+		triggerWatchers(c);
+	}
+	
 	@Override
 	public void postCreate(Create create) {
 		Change change=new Change();
@@ -76,8 +98,7 @@ public class IndexChanges extends IndexingOperationListener {
 		change.version=create.version();
 		change.timestamp=System.currentTimeMillis();
 		
-		changes.add(change);
-		lastChange=change.timestamp;
+		addChange(change);
 	}
 
 	@Override
@@ -88,8 +109,7 @@ public class IndexChanges extends IndexingOperationListener {
 		change.version=delete.version();
 		change.timestamp=System.currentTimeMillis();
 		
-		changes.add(change);
-		lastChange=change.timestamp;
+		addChange(change);
 	}
 
 	@Override
@@ -106,7 +126,6 @@ public class IndexChanges extends IndexingOperationListener {
 		change.version=index.version();
 		change.timestamp=System.currentTimeMillis();
 		
-		changes.add(change);
-		lastChange=change.timestamp;		
+		addChange(change);		
 	}
 }
