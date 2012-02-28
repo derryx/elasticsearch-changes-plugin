@@ -13,8 +13,8 @@ You can set the length of the history buffer with the setting @changes.history.s
 
 h2. Usage
 
-Point your browser to "http://localhost:9200/_changes/":http://localhost:9200/_changes/ to see changes for all indices.
-If you want to see changes only for one or a list of indices you can use "http://localhost:9200/foo,bar,baz/_changes/":http://localhost:9200/foo,bar,baz/_changes/.
+Point your browser to @http://localhost:9200/_changes/@ to see changes for all indices.
+If you want to see changes only for one or a list of indices you can use @http://localhost:9200/foo,bar,baz/_changes/@.
 
 You will get a response like this:
 
@@ -50,9 +50,14 @@ The timestamp is a UNIX timestamp in milliseconds (epoch midnight, January 1, 19
 
 h3. See changes after a given timestamp
 
-If you want to see only changes after a given timestamp you can use "http://localhost:9200/_changes/?since=1330282941692":http://localhost:9200/_changes/?since=1330282941692. The timestamp again is a UNIX timestamp (in milliseconds).
+If you want to see only changes after a given timestamp you can add the parameter @since@ to the request (for example @http://localhost:9200/_changes/?since=1330282941692@ ). The timestamp again is a UNIX timestamp (in milliseconds).
 
-h3. Version mapping
+h3. Wait for a index change to happen
+
+You can make your request wait for a change to happen with the parameter @wait@. Additionally you can give a @timeout@ parameter (in milliseconds).
+ (example: @http://localhost:9200/_changes/?wait=true&timeout=60000@ ).  
+
+h4. Version mapping
 
 * Change Plugin 0.1 -> Elasticsearch 0.18.7
 

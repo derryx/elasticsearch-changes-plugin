@@ -1,22 +1,30 @@
 package org.elasticsearch.plugins.changes.beans;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class IndexChangeWatcher {
 	String indexName;
 	Change change;
 	Semaphore barrier;
+	long timeout;
 	
 	public IndexChangeWatcher() {
-		barrier=new Semaphore(0);
+		this.barrier=new Semaphore(0);
+		this.timeout=15*60*1000;
+	}
+	
+	public IndexChangeWatcher(long timeout) {
+		this.barrier=new Semaphore(0);
+		this.timeout=timeout;
 	}
 	
 	public void permit() {
 		barrier.release();
 	}
 	
-	public void aquire() throws InterruptedException {
-		barrier.acquire();
+	public boolean aquire() throws InterruptedException {
+		return barrier.tryAcquire(timeout, TimeUnit.MILLISECONDS);
 	}
 
 	public String getIndexName() {

@@ -44,6 +44,8 @@ import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.rest.StringRestResponse;
 import org.elasticsearch.rest.XContentRestResponse;
 import org.elasticsearch.rest.XContentThrowableRestResponse;
 import org.elasticsearch.rest.action.support.RestXContentBuilder;
@@ -122,15 +124,21 @@ public class ChangesAction extends BaseRestHandler {
 
 		long since=request.paramAsLong("since", Long.MIN_VALUE);
 		boolean wait=request.paramAsBoolean("wait",Boolean.FALSE);
+		long timeout=request.paramAsLong("timeout", 15*60*1000);
 
 		try {
 			// Wait for trigger
 			if (wait) {
-				IndexChangeWatcher watcher=addWatcher(indices);
-				watcher.aquire();
+				IndexChangeWatcher watcher=addWatcher(indices,timeout);
+				boolean changeDetected=watcher.aquire();
 				removeWatcher(indices);
-				if (watcher.getChange().getType()==null) {
-					throw new Exception("No more shards available to trigger waiting watch");
+				if (!changeDetected) {
+					channel.sendResponse(new StringRestResponse(RestStatus.NOT_FOUND, "No change detected during timeout interval"));
+					return;
+				}
+				if (watcher.getChange()==null || watcher.getChange().getType()==null) {
+					channel.sendResponse(new StringRestResponse(RestStatus.NOT_FOUND, "No more shards available to trigger waiting watch"));
+					return;
 				}
 			}
 			
@@ -173,8 +181,8 @@ public class ChangesAction extends BaseRestHandler {
 		}
 	}
 	
-	IndexChangeWatcher addWatcher(List<String> indices) {
-		IndexChangeWatcher watcher=new IndexChangeWatcher();
+	IndexChangeWatcher addWatcher(List<String> indices, long timeout) {
+		IndexChangeWatcher watcher=new IndexChangeWatcher(timeout);
 		
 		for (String index : indices) {
 			IndexChanges change=changes.get(index);
