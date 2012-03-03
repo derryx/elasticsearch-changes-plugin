@@ -55,11 +55,12 @@ If you want to see only changes after a given timestamp you can add the paramete
 h3. Wait for a index change to happen
 
 You can make your request wait for a change to happen with the parameter @wait@. Additionally you can give a @timeout@ parameter (in milliseconds).
- (example: @http://localhost:9200/_changes/?wait=true&timeout=60000@ ).  
+ (example: @http://localhost:9200/_changes/?wait=true&timeout=60000@ ). The default timeout is 15 minutes. 
 
 h4. Version mapping
 
-* Change Plugin 0.1 -> Elasticsearch 0.18.7
+* Change Plugin 0.1 -> Elasticsearch 0.18.x
+* Change Plugin 0.2 -> Elasticsearch 0.19.x
 
 h2. Other information
 
