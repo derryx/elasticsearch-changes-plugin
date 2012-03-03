@@ -21,111 +21,41 @@ public class Change implements Comparable<Change> {
 	String id;
 	long version;
 	
-	
-	
-	
-	
-	
-	
-	
 	public long getTimestamp() {
 		return timestamp;
 	}
-
-
-
-
-
-
-
 
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
-
-
-
-
-
-
-
 	public Type getType() {
 		return type;
 	}
-
-
-
-
-
-
-
 
 	public void setType(Type type) {
 		this.type = type;
 	}
 
-
-
-
-
-
-
-
 	public String getId() {
 		return id;
 	}
-
-
-
-
-
-
-
 
 	public void setId(String id) {
 		this.id = id;
 	}
 
-
-
-
-
-
-
-
 	public long getVersion() {
 		return version;
 	}
-
-
-
-
-
-
-
 
 	public void setVersion(long version) {
 		this.version = version;
 	}
 
-
-
-
-
-
-
-
 	public enum Type {
 		INDEX,CREATE,DELETE;
 	}
-
-
-
-
-
-
-
 
 	public int compareTo(Change o) {
 		if (this.timestamp<o.timestamp) {
