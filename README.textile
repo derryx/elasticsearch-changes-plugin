@@ -59,8 +59,8 @@ You can make your request wait for a change to happen with the parameter @wait@.
 
 h4. Version mapping
 
-* Change Plugin 0.1 -> Elasticsearch 0.18.x
-* Change Plugin 0.2 -> Elasticsearch 0.19.x
+* Change Plugin 0.1.x -> Elasticsearch 0.18.x
+* Change Plugin 0.2.x -> Elasticsearch 0.19.x
 
 h2. Other information
 
