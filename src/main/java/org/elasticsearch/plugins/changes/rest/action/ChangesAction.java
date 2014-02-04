@@ -17,23 +17,21 @@ package org.elasticsearch.plugins.changes.rest.action;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 import static org.elasticsearch.rest.RestStatus.OK;
-import static org.elasticsearch.rest.action.support.RestActions.splitIndices;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.index.shard.service.IndexShard;
 import org.elasticsearch.indices.IndicesLifecycle.Listener;
 import org.elasticsearch.indices.IndicesService;
@@ -53,8 +51,8 @@ import org.elasticsearch.rest.action.support.RestXContentBuilder;
 public class ChangesAction extends BaseRestHandler {
 	private static final ESLogger log=Loggers.getLogger(ChangesAction.class);
 	private static final String SETTING_HISTORY_SIZE="changes.history.size";
-	IndicesService indicesService;
-	Map<String, IndexChanges> changes;
+	private IndicesService indicesService;
+    private Map<String, IndexChanges> changes;
 
 	@Inject
 	public ChangesAction(Settings settings, Client client,
@@ -74,7 +72,7 @@ public class ChangesAction extends BaseRestHandler {
 			public void afterIndexShardStarted(IndexShard indexShard) {
 				if (indexShard.routingEntry().primary()) {
 					log.debug("Registering change handler for [{}][{}]", indexShard.shardId().index().name(),indexShard.shardId().id());
-					IndexChanges indexChanges = null;
+					IndexChanges indexChanges;
 					synchronized (changes) {
 						indexChanges = changes.get(indexShard.shardId().index()
 								.name());
@@ -91,25 +89,6 @@ public class ChangesAction extends BaseRestHandler {
 				}
 			}
 
-			@Override
-			public void beforeIndexShardClosed(ShardId shardId,
-					IndexShard indexShard, boolean delete) {
-				if (indexShard.routingEntry().primary()) {
-					log.debug("Removing change handler for [{}][{}]",indexShard.shardId().index().name(),indexShard.shardId().id());
-					IndexChanges indexChanges = changes.get(shardId.index()
-							.name());
-					indexShard.indexingService().removeListener(indexChanges);
-					synchronized (changes) {
-						if (indexChanges.removeShard() == 0) {
-							log.debug("No more active shards for [{}]", shardId.index().name());
-							changes.remove(shardId.index().name());
-							
-							// Trigger stale watchers for this index
-							indexChanges.triggerWatchers();
-						}
-					}
-				}
-			}
 		});
 	}
 
@@ -204,4 +183,11 @@ public class ChangesAction extends BaseRestHandler {
 			}
 		}		
 	}
+
+    public static String[] splitIndices(String indices) {
+        if (indices == null) {
+            return Strings.EMPTY_ARRAY;
+        }
+        return Strings.splitStringByCommaToArray(indices);
+    }
 }
