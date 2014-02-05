@@ -40,6 +40,14 @@
 			</roles>
 		</developer>
 	</developers>
+	<contributors>
+		<contributor>
+			<name>Flavio Pérez Carreto</name>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</contributor>
+	</contributors>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
