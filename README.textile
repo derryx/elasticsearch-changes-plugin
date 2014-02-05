@@ -61,6 +61,7 @@ h4. Version mapping
 
 * Change Plugin 0.1.x -> Elasticsearch 0.18.x
 * Change Plugin 0.2.x -> Elasticsearch 0.19.x
+* Change Plugin 0.3.x -> Elasticsearch 1.0.x
 
 h2. Other information
 
