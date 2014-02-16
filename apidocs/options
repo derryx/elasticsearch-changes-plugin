@@ -1,24 +1,24 @@
 -classpath
-'C:/Users/thomasp/git/elasticsearch-changes-plugin/target/classes;C:/Users/thomasp/.m2/repository/org/apache/lucene/lucene-analyzers/3.6.0/lucene-analyzers-3.6.0.jar;C:/Users/thomasp/.m2/repository/org/apache/lucene/lucene-core/3.6.0/lucene-core-3.6.0.jar;C:/Users/thomasp/.m2/repository/org/apache/lucene/lucene-highlighter/3.6.0/lucene-highlighter-3.6.0.jar;C:/Users/thomasp/.m2/repository/org/elasticsearch/elasticsearch/0.19.8/elasticsearch-0.19.8.jar;C:/Users/thomasp/.m2/repository/org/apache/lucene/lucene-memory/3.6.0/lucene-memory-3.6.0.jar;C:/Users/thomasp/.m2/repository/org/apache/lucene/lucene-queries/3.6.0/lucene-queries-3.6.0.jar'
+'/Users/thomas/Projects/elasticsearch-changes-plugin/target/classes:/Users/thomas/.m2/repository/org/apache/lucene/lucene-suggest/4.6.0/lucene-suggest-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-misc/4.6.0/lucene-misc-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-join/4.6.0/lucene-join-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-core/4.6.0/lucene-core-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-highlighter/4.6.0/lucene-highlighter-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-expressions/4.6.0/lucene-expressions-4.6.0.jar:/Users/thomas/.m2/repository/org/antlr/antlr-runtime/3.5/antlr-runtime-3.5.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-queryparser/4.6.0/lucene-queryparser-4.6.0.jar:/Users/thomas/.m2/repository/org/ow2/asm/asm/4.1/asm-4.1.jar:/Users/thomas/.m2/repository/org/ow2/asm/asm-commons/4.1/asm-commons-4.1.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-spatial/4.6.0/lucene-spatial-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-memory/4.6.0/lucene-memory-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-grouping/4.6.0/lucene-grouping-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-sandbox/4.6.0/lucene-sandbox-4.6.0.jar:/Users/thomas/.m2/repository/com/spatial4j/spatial4j/0.3/spatial4j-0.3.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-analyzers-common/4.6.0/lucene-analyzers-common-4.6.0.jar:/Users/thomas/.m2/repository/org/elasticsearch/elasticsearch/1.0.0.Beta2/elasticsearch-1.0.0.Beta2.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-codecs/4.6.0/lucene-codecs-4.6.0.jar:/Users/thomas/.m2/repository/org/apache/lucene/lucene-queries/4.6.0/lucene-queries-4.6.0.jar'
 -encoding
 'UTF-8'
 -protected
 -sourcepath
-'C:/Users/thomasp/git/elasticsearch-changes-plugin/src/main/java'
+'/Users/thomas/Projects/elasticsearch-changes-plugin/src/main/java'
 -author
 -bottom
-'Copyright &#169; 2012. All Rights Reserved.'
+'Copyright &#169; 2012-2014. All Rights Reserved.'
 -charset
 'UTF-8'
 -d
-'C:/Users/thomasp/git/elasticsearch-changes-plugin/target/site/apidocs'
+'/Users/thomas/Projects/elasticsearch-changes-plugin/target/site/apidocs'
 -docencoding
 'UTF-8'
 -doctitle
-'elasticsearch-changes-plugin 0.2.0-SNAPSHOT API'
+'elasticsearch-changes-plugin 0.3.0-SNAPSHOT API'
 -link
 'http://java.sun.com/javase/6/docs/api'
 -use
 -version
 -windowtitle
-'elasticsearch-changes-plugin 0.2.0-SNAPSHOT API'
+'elasticsearch-changes-plugin 0.3.0-SNAPSHOT API'
