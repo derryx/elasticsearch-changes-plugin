@@ -26,27 +26,27 @@ import org.elasticsearch.plugins.AbstractPlugin;
 import org.elasticsearch.plugins.changes.module.ChangesModule;
 
 public class ChangesPlugin extends AbstractPlugin {
-	private static final ESLogger log=Loggers.getLogger(ChangesPlugin.class);
-	private final Collection<Class<? extends Module>> modules;
-	
-	public ChangesPlugin() {
-		log.info("Starting ChangesPlugin");
-		
-		Collection<Class<? extends Module>> tempList=new ArrayList<Class<? extends Module>>(1);
-		tempList.add(ChangesModule.class);
-		modules=Collections.unmodifiableCollection(tempList);
-	}
-	
-	@Override
-	public Collection<Class<? extends Module>> modules() {
-		return modules;
-	}
+    private static final ESLogger LOG = Loggers.getLogger(ChangesPlugin.class);
+    private final Collection<Class<? extends Module>> modules;
+    
+    public ChangesPlugin() {
+        LOG.info("Starting ChangesPlugin");
+        
+        Collection<Class<? extends Module>> tempList=new ArrayList<Class<? extends Module>>(1);
+        tempList.add(ChangesModule.class);
+        modules=Collections.unmodifiableCollection(tempList);
+    }
+    
+    @Override
+    public Collection<Class<? extends Module>> modules() {
+        return modules;
+    }
 
-	public String description() {
-		return "Changes Plugin";
-	}
+    public String description() {
+        return "Changes Plugin";
+    }
 
-	public String name() {
-		return "changes";
-	}
+    public String name() {
+        return "changes";
+    }
 }
