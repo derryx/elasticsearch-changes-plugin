@@ -27,8 +27,7 @@ public class ConcurrentCircularBuffer <T> {
     private final Class<T> type;
 
     public ConcurrentCircularBuffer (final Class <T> type, 
-                                     final int bufferSize) 
-    {
+                                     final int bufferSize) {
         if (bufferSize < 1) {
             throw new IllegalArgumentException(
                 "Buffer size must be a positive value"
@@ -51,18 +50,18 @@ public class ConcurrentCircularBuffer <T> {
         // find last non-null entry
         int lastEntryIndex=-1;
         for (int i=snapshot.length-1;i>=0;--i) {
-        	if (snapshot[i]!=null) {
-        		lastEntryIndex=i;
-        		break;
-        	}
+            if (snapshot[i]!=null) {
+                lastEntryIndex=i;
+                break;
+            }
         }
         // buffer still empty?
         if (lastEntryIndex==-1) {
-        	return Collections.emptyList();
+            return Collections.emptyList();
         }
         // buffer already full?
         if (lastEntryIndex==snapshot.length-1) {
-        	return Arrays.asList(snapshot);
+            return Arrays.asList(snapshot);
         }
         
         T[] shortSnapshot=(T[])Array.newInstance(type, lastEntryIndex+1);
@@ -76,6 +75,6 @@ public class ConcurrentCircularBuffer <T> {
     }
     
     public long getModificationCount() {
-    	return cursor.get();
+        return cursor.get();
     }
 }

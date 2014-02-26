@@ -21,11 +21,11 @@ import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.plugins.changes.rest.action.ChangesAction;
 
 public class ChangesModule extends AbstractModule {
-	private static final ESLogger log=Loggers.getLogger(ChangesModule.class);
-	
-	@Override
-	protected void configure() {
-		log.info("Binding ChangesService");
-		bind(ChangesAction.class).asEagerSingleton();
-	}
+    private static final ESLogger LOG = Loggers.getLogger(ChangesModule.class);
+    
+    @Override
+    protected void configure() {
+        LOG.info("Binding ChangesService");
+        bind(ChangesAction.class).asEagerSingleton();
+    }
 }

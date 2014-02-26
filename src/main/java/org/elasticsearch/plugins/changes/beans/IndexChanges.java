@@ -21,111 +21,104 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.elasticsearch.index.engine.Engine.Create;
 import org.elasticsearch.index.engine.Engine.Delete;
-import org.elasticsearch.index.engine.Engine.DeleteByQuery;
 import org.elasticsearch.index.engine.Engine.Index;
 import org.elasticsearch.index.indexing.IndexingOperationListener;
 import org.elasticsearch.plugins.changes.beans.Change.Type;
 import org.elasticsearch.plugins.changes.util.ConcurrentCircularBuffer;
 
 public class IndexChanges extends IndexingOperationListener {
-	String indexName;
-	long lastChange;
+    String indexName;
+    long lastChange;
     ConcurrentCircularBuffer<Change> changes;
     AtomicInteger shardCount;
     List<IndexChangeWatcher> watchers;
-	
-	public IndexChanges(String indexName, int capacity) {
-		this.indexName=indexName;
-		this.lastChange=System.currentTimeMillis();
-		this.changes=new ConcurrentCircularBuffer<Change>(Change.class, capacity);
-		this.shardCount=new AtomicInteger();
-		this.watchers=new CopyOnWriteArrayList<IndexChangeWatcher>();
-	}
+    
+    public IndexChanges(String indexName, int capacity) {
+        this.indexName=indexName;
+        this.lastChange=System.currentTimeMillis();
+        this.changes=new ConcurrentCircularBuffer<Change>(Change.class, capacity);
+        this.shardCount=new AtomicInteger();
+        this.watchers=new CopyOnWriteArrayList<IndexChangeWatcher>();
+    }
 
-	public void removeWatcher(IndexChangeWatcher watcher) {
-		watchers.remove(watcher);
-	}
-	
-	public void addWatcher(IndexChangeWatcher watcher) {
-		watchers.add(watcher);
-	}
-	
-	public void triggerWatchers() {
-		triggerWatchers(new Change());
-	}
-	
-	private void triggerWatchers(Change c) {
-		for (IndexChangeWatcher watch : watchers) {
-			watch.setIndexName(indexName);
-			watch.setChange(c);
-			watch.permit();
-		}
-	}
+    public void removeWatcher(IndexChangeWatcher watcher) {
+        watchers.remove(watcher);
+    }
+    
+    public void addWatcher(IndexChangeWatcher watcher) {
+        watchers.add(watcher);
+    }
+    
+    public void triggerWatchers() {
+        triggerWatchers(new Change());
+    }
+    
+    private void triggerWatchers(Change c) {
+        for (IndexChangeWatcher watch : watchers) {
+            watch.setIndexName(indexName);
+            watch.setChange(c);
+            watch.permit();
+        }
+    }
 
-	public long getLastChangeMillis() {
-		return lastChange;
-	}
-	
-	public long getLastChange() {
-		return lastChange;
-	}
-	
-	public List<Change> getChanges() {
-		List<Change> snapshot=changes.snapshot();
-		
-		return snapshot;
-	}
-	
-	public int addShard() {
-		return shardCount.incrementAndGet();
-	}
-	
-	public int removeShard() {
-		return shardCount.decrementAndGet();
-	}
-	
-	protected void addChange(Change c) {
-		lastChange=c.timestamp;
-		changes.add(c);
-		triggerWatchers(c);
-	}
-	
-	@Override
-	public void postCreate(Create create) {
-		Change change=new Change();
-		change.id=create.id();
-		change.type=Type.CREATE;
-		change.version=create.version();
-		change.timestamp=System.currentTimeMillis();
-		
-		addChange(change);
-	}
+    public long getLastChangeMillis() {
+        return lastChange;
+    }
+    
+    public long getLastChange() {
+        return lastChange;
+    }
+    
+    public List<Change> getChanges() {
+        List<Change> snapshot=changes.snapshot();
+        
+        return snapshot;
+    }
+    
+    public int addShard() {
+        return shardCount.incrementAndGet();
+    }
+    
+    public int removeShard() {
+        return shardCount.decrementAndGet();
+    }
+    
+    protected void addChange(Change c) {
+        lastChange=c.timestamp;
+        changes.add(c);
+        triggerWatchers(c);
+    }
+    
+    @Override
+    public void postCreate(Create create) {
+        Change change=new Change();
+        change.id=create.id();
+        change.type=Type.CREATE;
+        change.version=create.version();
+        change.timestamp=System.currentTimeMillis();
+        
+        addChange(change);
+    }
 
-	@Override
-	public void postDelete(Delete delete) {
-		Change change=new Change();
-		change.id=delete.id();
-		change.type=Type.DELETE;
-		change.version=delete.version();
-		change.timestamp=System.currentTimeMillis();
-		
-		addChange(change);
-	}
+    @Override
+    public void postDelete(Delete delete) {
+        Change change=new Change();
+        change.id=delete.id();
+        change.type=Type.DELETE;
+        change.version=delete.version();
+        change.timestamp=System.currentTimeMillis();
+        
+        addChange(change);
+    }
 
-	@Override
-	public void postDeleteByQuery(DeleteByQuery deleteByQuery) {
-		// TODO Auto-generated method stub
-		super.postDeleteByQuery(deleteByQuery);
-	}
-
-	@Override
-	public void postIndex(Index index) {
-		Change change=new Change();
-		change.id=index.id();
-		change.type=Type.INDEX;
-		change.version=index.version();
-		change.timestamp=System.currentTimeMillis();
-		
-		addChange(change);		
-	}
+    @Override
+    public void postIndex(Index index) {
+        Change change=new Change();
+        change.id=index.id();
+        change.type=Type.INDEX;
+        change.version=index.version();
+        change.timestamp=System.currentTimeMillis();
+        
+        addChange(change);        
+    }
 }
