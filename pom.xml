@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.elasticsearch</groupId>
 	<artifactId>elasticsearch-changes-plugin</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.4.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<description>ElasticSearch - Changes Plugin</description>
 	<inceptionYear>2012</inceptionYear>
@@ -39,6 +39,14 @@
 				<role>developer</role>
 			</roles>
 		</developer>
+		<developer>
+			<id>bobbyhubbard</id>
+			<name>Bobby Hubbard</name>
+			<roles>
+				<role>committer</role>
+				<role>developer</role>
+			</roles>
+		</developer>
 	</developers>
 	<contributors>
 		<contributor>
@@ -51,6 +59,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<elasticsearch.version>1.7.3</elasticsearch.version>
 	</properties>
 
 	<licenses>
@@ -76,7 +85,7 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>1.0.0.Beta2</version>
+			<version>${elasticsearch.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -134,9 +143,6 @@
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<version>2.7</version>
 						</plugin>
-						<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-report-plugin</artifactId> 
-							<version>2.6</version> </plugin> <plugin> <groupId>org.apache.maven.plugins</groupId> 
-							<artifactId>maven-checkstyle-plugin</artifactId> <version>2.6</version> </plugin> -->
 					</reportPlugins>
 				</configuration>
 			</plugin>
@@ -144,7 +150,7 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.3</version>
 				<configuration>
-				    <appendAssemblyId>false</appendAssemblyId>
+					<appendAssemblyId>false</appendAssemblyId>
 					<descriptors>
 						<descriptor>src/main/assemblies/plugin.xml</descriptor>
 					</descriptors>
@@ -170,11 +176,11 @@
 				</configuration>
 			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+			</plugin>
 
 		</plugins>
 	</build>
