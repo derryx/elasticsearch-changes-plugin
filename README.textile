@@ -3,6 +3,8 @@ h1. Elasticsearch Changes Plugin
 The Elasticsearch Changes plugin is a plugin for "Elasticsearch":http://www.elasticsearch.org/ that tracks changes to indices and makes this information available
 through a REST service. It provides information on node basis. So if you want the complete change information you have to query all nodes in your cluster.
 
+*This plugin is outdated! Please go to to https://github.com/jurgc11/es-change-feed-plugin for an updated version.*
+
 h2. Installation
 
 Run @bin/plugin -install derryx/elasticsearch-changes-plugin@
